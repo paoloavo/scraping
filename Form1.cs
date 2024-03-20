@@ -14,6 +14,8 @@ using System.Net;
 using System.Text.RegularExpressions;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using static System.Net.WebRequestMethods;
+using ImageResizer;
+
 
 namespace scraping
 {
@@ -61,33 +63,54 @@ namespace scraping
 
             var webcam = webpage.Html.OwnerDocument.DocumentNode.CssSelect("div.row").ToList()[1];
             var urlImg = webpage.Html.OwnerDocument.DocumentNode.CssSelect("section.col-sm-12");
-             var region = urlImg.CssSelect("div.region");
-        var webc = region.CssSelect("article.webcam");
-        var jumbotron = webc.CssSelect("div.jumbotron");
-        var container = jumbotron.CssSelect("div.container");
-    var row = container.CssSelect("div.row");
-    var blocco = row.CssSelect("div#webcam_intro_left").ToList();
-
-    //var webcamintro = blocco.CssSelect("");
-    //var row2 = webcamintro.CssSelect("div.row");
-    //var col = row2.CssSelect("div.col-xs-12");
-    var img = blocco.CssSelect("img.img-responsive").First().GetAttributeValue("src");
+            var region = urlImg.CssSelect("div.region");
+            var webc = region.CssSelect("article.webcam");
+            var jumbotron = webc.CssSelect("div.jumbotron");
+            var container = jumbotron.CssSelect("div.container");
+            var row = container.CssSelect("div.row");
+            var blocco = row.CssSelect("div#webcam_intro_left").ToList();
+            var img = blocco.CssSelect("img.img-responsive").First().GetAttributeValue("src");
             var img1 = $"https://www.dovesciare.it{img}";
             var request = WebRequest.Create(img1);
 
-            using (var response = request.GetResponse())
-            using (var stream = response.GetResponseStream())
+            string outputFilePath = "resized_image.jpg";
+
+            WebClient client = new WebClient();
+            byte[] imageData = client.DownloadData(img1);
+
+
+            using (var imageStream = new System.IO.MemoryStream(imageData))
             {
-                pictureBox1.Image = Bitmap.FromStream(stream);
+                using (var resultStream = new System.IO.MemoryStream())
+                {
+
+                    int newWidth = 400;
+                    int newHeight = 400;
+
+
+                    ImageBuilder.Current.Build(
+                        new ImageJob(
+                            imageStream,
+                            resultStream,
+                            new Instructions($"width={newWidth}&height={newHeight}&mode=max"),
+                            false,
+                            true));
+
+
+                    System.IO.File.WriteAllBytes(outputFilePath, resultStream.ToArray());
+                }
             }
 
-
-
-
-
-
-
-
+            pictureBox1.Image = Image.FromFile(outputFilePath);
         }
+      
+
+
+
+
+
+
+
+
     }
 }
