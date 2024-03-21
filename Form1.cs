@@ -1,4 +1,4 @@
-﻿using ScrapySharp.Extensions;
+using ScrapySharp.Extensions;
 using ScrapySharp.Network;
 using System;
 using System.Collections.Generic;
@@ -16,6 +16,7 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using static System.Net.WebRequestMethods;
 using ImageResizer;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.TrackBar;
+using System.IO;
 
 
 namespace scraping
@@ -74,37 +75,40 @@ namespace scraping
             var img1 = $"https://www.dovesciare.it{img}";
             var request = WebRequest.Create(img1);
 
-            string outputFilePath = "resized_image.jpg";
-
-            WebClient client = new WebClient();
-            byte[] imageData = client.DownloadData(img1);
-
-
-            using (var imageStream = new System.IO.MemoryStream(imageData))
+            try
             {
-                using (var resultStream = new System.IO.MemoryStream())
+               
+                using (WebClient webClient = new WebClient())
+                using (MemoryStream originalStream = new MemoryStream(webClient.DownloadData(img1)))
                 {
+                    
+                    using (Image originalImage = Image.FromStream(originalStream))
+                    {
+                       
+                        int newWidth = 400; 
+                        int newHeight = 400; 
 
-                    int newWidth = 400;
-                    int newHeight = 400;
+                        // Resize the image
+                        using (Image resizedImage = new Bitmap(newWidth, newHeight))
+                        using (Graphics graphics = Graphics.FromImage(resizedImage))
+                        {
+                            graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                            graphics.DrawImage(originalImage, 0, 0, newWidth, newHeight);
 
+                            
+                            Bitmap bitmap = new Bitmap(resizedImage);
 
-                    ImageBuilder.Current.Build(
-                        new ImageJob(
-                            imageStream,
-                            resultStream,
-                            new Instructions($"width={newWidth}&height={newHeight}&mode=max"),
-                            false,
-                            true));
-
-
-                    System.IO.File.WriteAllBytes(outputFilePath, resultStream.ToArray());
+                            
+                            pictureBox1.Image = bitmap;
+                        }
+                    }
                 }
             }
-
-
-
-            pictureBox1.Image = Image.FromFile(outputFilePath);
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error: " + ex.Message);
+            }
+           
         }
 
         private async void button2_Click(object sender, EventArgs e)
@@ -112,7 +116,7 @@ namespace scraping
             var luogo = textBox1.Text;
             string url = $"https://www.3bmeteo.com/meteo/{luogo}";
 
-           
+
 
 
             ScrapingBrowser browser = new ScrapingBrowser();
@@ -121,13 +125,14 @@ namespace scraping
 
             WebPage webpage = await browser.NavigateToPageAsync(new Uri(url));
 
-           var wrapper = webpage.Html.OwnerDocument.DocumentNode.CssSelect("div#wrapper");
+            var wrapper = webpage.Html.OwnerDocument.DocumentNode.CssSelect("div#wrapper");
             var main = wrapper.CssSelect("section#main");
             var box = main.CssSelect("div.box").ToList()[1];
             var slider = box.CssSelect("div.slider");
-            var navTab = slider.CssSelect("div.navTab");            
+            var navTab = slider.CssSelect("div.navTab");
             var days = navTab.CssSelect("div.navDays").ToList()[1];
-
         }
+    
     }
 }
+
