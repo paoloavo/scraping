@@ -1,4 +1,4 @@
-﻿using ScrapySharp.Extensions;
+using ScrapySharp.Extensions;
 using ScrapySharp.Network;
 using System;
 using System.Collections.Generic;
@@ -135,3 +135,4 @@ namespace scraping
     
     }
 }
+
