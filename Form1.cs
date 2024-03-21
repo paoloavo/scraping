@@ -15,6 +15,7 @@ using System.Text.RegularExpressions;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using static System.Net.WebRequestMethods;
 using ImageResizer;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TrackBar;
 
 
 namespace scraping
@@ -101,16 +102,32 @@ namespace scraping
                 }
             }
 
+
+
             pictureBox1.Image = Image.FromFile(outputFilePath);
         }
-      
+
+        private async void button2_Click(object sender, EventArgs e)
+        {
+            var luogo = textBox1.Text;
+            string url = $"https://www.3bmeteo.com/meteo/{luogo}";
+
+           
 
 
+            ScrapingBrowser browser = new ScrapingBrowser();
+            browser.AllowAutoRedirect = true;
+            browser.AllowMetaRedirect = true;
 
+            WebPage webpage = await browser.NavigateToPageAsync(new Uri(url));
 
+           var wrapper = webpage.Html.OwnerDocument.DocumentNode.CssSelect("div#wrapper");
+            var main = wrapper.CssSelect("section#main");
+            var box = main.CssSelect("div.box").ToList()[1];
+            var slider = box.CssSelect("div.slider");
+            var navTab = slider.CssSelect("div.navTab");            
+            var days = navTab.CssSelect("div.navDays").ToList()[1];
 
-
-
-
+        }
     }
 }
