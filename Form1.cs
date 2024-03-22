@@ -131,7 +131,17 @@ namespace scraping
             var slider = box.CssSelect("div.slider");
             var navTab = slider.CssSelect("div.navTab");
             var days = navTab.CssSelect("div.navDays").ToList()[1];
-        }
+            var child = days.ChildNodes.Skip(1).ToList()[0];
+            var child1 = child.ChildNodes.Skip(3).ToList()[0].GetAttributeValue("src");
+
+            pictureBox2.Load(child1);
+           
+
+           
+
+
+
+         }
     
     }
 }
