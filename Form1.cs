@@ -123,23 +123,42 @@ namespace scraping
             browser.AllowAutoRedirect = true;
             browser.AllowMetaRedirect = true;
 
-            WebPage webpage = await browser.NavigateToPageAsync(new Uri(url));
+            {
+                WebPage webpage = await browser.NavigateToPageAsync(new Uri(url));
 
-            var wrapper = webpage.Html.OwnerDocument.DocumentNode.CssSelect("div#wrapper");
-            var main = wrapper.CssSelect("section#main");
-            var box = main.CssSelect("div.box").ToList()[1];
-            var slider = box.CssSelect("div.slider");
-            var navTab = slider.CssSelect("div.navTab");
-            var days = navTab.CssSelect("div.navDays").ToList()[1];
-            var child = days.ChildNodes.Skip(1).ToList()[0];
-            var child1 = child.ChildNodes.Skip(3).ToList()[0].GetAttributeValue("src");
+                var wrapper = webpage.Html.OwnerDocument.DocumentNode.CssSelect("div#wrapper");
+                var main = wrapper.CssSelect("section#main");
+                var box = main.CssSelect("div.box").ToList()[1];
+                var slider = box.CssSelect("div.slider");
+                var navTab = slider.CssSelect("div.navTab");
+                var days = navTab.CssSelect("div.navDays").ToList()[1];
+                var child = days.ChildNodes.Skip(1).ToList()[0];
+                var child1 = child.ChildNodes.Skip(3).ToList()[0].GetAttributeValue("src");
 
-            pictureBox2.Load(child1);
-           
+                pictureBox2.Load(child1);
 
-           
+            }
+
+            {
+                WebPage webpage = await browser.NavigateToPageAsync(new Uri(url));
+
+                var wrapper = webpage.Html.OwnerDocument.DocumentNode.CssSelect("div#wrapper");
+                var main = wrapper.CssSelect("section#main");
+                var box = main.CssSelect("div.box").ToList()[1];
+                var slider = box.CssSelect("div.slider");
+                var navTab = slider.CssSelect("div.navTab");
+                var days = navTab.CssSelect("div.navDays").ToList()[1];
+                var child = days.ChildNodes.Skip(1).ToList();
+               var child1 = child[0].ChildNodes.Skip(2).ToList()[3];
+                var min = child1.CssSelect("span.switchcelsius").ToList()[0] ;
+                var max = child1.CssSelect("span.switchcelsius").ToList()[1];
 
 
+
+                label2.Text = $"{min.InnerText} °C  {max.InnerText} °C";
+                
+
+            }
 
          }
     
