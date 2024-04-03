@@ -17,7 +17,9 @@ using static System.Net.WebRequestMethods;
 using ImageResizer;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.TrackBar;
 using System.IO;
-
+using OpenQA.Selenium;
+using OpenQA.Selenium.Chrome;
+using System.Drawing.Imaging;
 
 namespace scraping
 {
@@ -114,7 +116,7 @@ namespace scraping
         private async void button2_Click(object sender, EventArgs e)
         {
             var luogo = textBox1.Text;
-            string url = $"https://www.3bmeteo.com/meteo/{luogo}";
+            string url = $"https://www.dovesciare.it/localita/{luogo}";
 
 
 
@@ -126,41 +128,22 @@ namespace scraping
             {
                 WebPage webpage = await browser.NavigateToPageAsync(new Uri(url));
 
-                var wrapper = webpage.Html.OwnerDocument.DocumentNode.CssSelect("div#wrapper");
-                var main = wrapper.CssSelect("section#main");
-                var box = main.CssSelect("div.box").ToList()[1];
-                var slider = box.CssSelect("div.slider");
-                var navTab = slider.CssSelect("div.navTab");
-                var days = navTab.CssSelect("div.navDays").ToList()[1];
-                var child = days.ChildNodes.Skip(1).ToList()[0];
-                var child1 = child.ChildNodes.Skip(3).ToList()[0].GetAttributeValue("src");
+                var tot = webpage.Html.OwnerDocument.DocumentNode.CssSelect("div.dialog-off-canvas-main-canvas");
+                var main = tot.CssSelect("div.main-container");
+                var row = main.CssSelect("div.row");
+                var col = row.CssSelect("section.col-sm-12");
+                var region = col.CssSelect("div.region");
+                var nomar = region.CssSelect("div#locadett_dettagli");
+                var conteiner = nomar.CssSelect("div.container");
 
-                pictureBox2.Load(child1);
+                var row1 = conteiner.CssSelect("div.row");
+
+
+
+
 
             }
-
-            {
-                WebPage webpage = await browser.NavigateToPageAsync(new Uri(url));
-
-                var wrapper = webpage.Html.OwnerDocument.DocumentNode.CssSelect("div#wrapper");
-                var main = wrapper.CssSelect("section#main");
-                var box = main.CssSelect("div.box").ToList()[1];
-                var slider = box.CssSelect("div.slider");
-                var navTab = slider.CssSelect("div.navTab");
-                var days = navTab.CssSelect("div.navDays").ToList()[1];
-                var child = days.ChildNodes.Skip(1).ToList();
-               var child1 = child[0].ChildNodes.Skip(2).ToList()[3];
-                var min = child1.CssSelect("span.switchcelsius").ToList()[0] ;
-                var max = child1.CssSelect("span.switchcelsius").ToList()[1];
-
-
-
-                label2.Text = $"{min.InnerText} °C  {max.InnerText} °C";
-                
-
-            }
-
-         }
+        }
     
     }
 }
