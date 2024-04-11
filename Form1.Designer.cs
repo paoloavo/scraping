@@ -85,10 +85,10 @@
             // 
             // pictureBox2
             // 
-            this.pictureBox2.Location = new System.Drawing.Point(396, 451);
-            this.pictureBox2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.pictureBox2.Location = new System.Drawing.Point(405, 31);
+            this.pictureBox2.Margin = new System.Windows.Forms.Padding(2);
             this.pictureBox2.Name = "pictureBox2";
-            this.pictureBox2.Size = new System.Drawing.Size(581, 304);
+            this.pictureBox2.Size = new System.Drawing.Size(1125, 840);
             this.pictureBox2.TabIndex = 5;
             this.pictureBox2.TabStop = false;
             // 
