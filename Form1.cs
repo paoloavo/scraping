@@ -1,3 +1,4 @@
+
 using ScrapySharp.Extensions;
 using ScrapySharp.Network;
 using System;
@@ -21,6 +22,7 @@ using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using System.Drawing.Imaging;
 using System.Net.Http;
+using System.Runtime.InteropServices;
 
 namespace scraping
 {
@@ -42,7 +44,7 @@ namespace scraping
                 return $"{orario} * {canale} * {titolo} * {descrizione}";
             }
 
-
+            
         }
         List<programmazione> elencoProgrammi = new List<programmazione>();
         programmazione programmaAttuale;
@@ -80,16 +82,16 @@ namespace scraping
 
             try
             {
-               
+
                 using (WebClient webClient = new WebClient())
                 using (MemoryStream originalStream = new MemoryStream(webClient.DownloadData(img1)))
                 {
-                    
+
                     using (Image originalImage = Image.FromStream(originalStream))
                     {
-                       
-                        int newWidth = 400; 
-                        int newHeight = 400; 
+
+                        int newWidth = 400;
+                        int newHeight = 400;
 
                         // Resize the image
                         using (Image resizedImage = new Bitmap(newWidth, newHeight))
@@ -98,10 +100,10 @@ namespace scraping
                             graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
                             graphics.DrawImage(originalImage, 0, 0, newWidth, newHeight);
 
-                            
+
                             Bitmap bitmap = new Bitmap(resizedImage);
 
-                            
+
                             pictureBox1.Image = bitmap;
                         }
                     }
@@ -111,111 +113,111 @@ namespace scraping
             {
                 MessageBox.Show("Error: " + ex.Message);
             }
-           
+
         }
 
         private async void button2_Click(object sender, EventArgs e)
-        {
-            var luogo = textBox1.Text;
-            string url = $"https://www.travel365.it/destinazioni/europa/italia/lombardia/{luogo}/";
-
-
-
-
-            ScrapingBrowser browser = new ScrapingBrowser();
-            browser.AllowAutoRedirect = true;
-            browser.AllowMetaRedirect = true;
 
             {
-                WebPage webpage = await browser.NavigateToPageAsync(new Uri(url));
+                var luogo = textBox1.Text;
+                string url = $"https://www.travel365.it/destinazioni/europa/italia/lombardia/{luogo}/";
 
-                //var tot = webpage.Html.OwnerDocument.DocumentNode.CssSelect("div.dialog-off-canvas-main-canvas");
-                //var main = tot.CssSelect("div.main-container");
-                //var row = main.CssSelect("div.row");
-                //var col = row.CssSelect("section.col-sm-12");
-                //var region = col.CssSelect("div.region");
-                //var nomar = region.CssSelect("div#locadett_dettagli");
-                //var conteiner = nomar.CssSelect("div.container");
 
-                //var row1 = conteiner.CssSelect("div.row");
+
+
+                ScrapingBrowser browser = new ScrapingBrowser();
+                browser.AllowAutoRedirect = true;
+                browser.AllowMetaRedirect = true;
 
                 {
-                    await RemoveCookiesAsync($"https://www.travel365.it/destinazioni/europa/italia/lombardia/{luogo}/");
-                }
+                    WebPage webpage = await browser.NavigateToPageAsync(new Uri(url));
 
-               
-                {
-                    try
+                    //var tot = webpage.Html.OwnerDocument.DocumentNode.CssSelect("div.dialog-off-canvas-main-canvas");
+                    //var main = tot.CssSelect("div.main-container");
+                    //var row = main.CssSelect("div.row");
+                    //var col = row.CssSelect("section.col-sm-12");
+                    //var region = col.CssSelect("div.region");
+                    //var nomar = region.CssSelect("div#locadett_dettagli");
+                    //var conteiner = nomar.CssSelect("div.container");
+
+                    //var row1 = conteiner.CssSelect("div.row");
+
+                    
+
+
                     {
-                        // Crea un'istanza di HttpClient
-                        using (HttpClient client = new HttpClient())
+                        try
                         {
-                            // Invia una richiesta GET al sito specificato
-                            HttpResponseMessage response = await client.GetAsync(url);
-
-                            // Assicurati che la richiesta sia andata a buon fine
-                            if (response.IsSuccessStatusCode)
+                            // Crea un'istanza di HttpClient
+                            using (HttpClient client = new HttpClient())
                             {
-                                // Rimuovi tutti i cookie dalla risposta
-                                foreach (var cookie in response.Headers.GetValues("Set-Cookie"))
+                                // Invia una richiesta GET al sito specificato
+                                HttpResponseMessage response = await client.GetAsync(url);
+
+                                // Assicurati che la richiesta sia andata a buon fine
+                                if (response.IsSuccessStatusCode)
                                 {
-                                    string[] cookieParts = cookie.Split(';');
-                                    string cookieName = cookieParts[0].Split('=')[0];
-                                    string domain = cookieParts[1].Split('=')[1].TrimStart();
-                                    client.DefaultRequestHeaders.Add("Cookie", $"{cookieName}=; domain={domain}; expires=Thu, 01 Jan 1970 00:00:00 GMT");
-                                }
+                                    // Rimuovi tutti i cookie dalla risposta
+                                    foreach (var cookie in response.Headers.GetValues("Set-Cookie"))
+                                    {
+                                        string[] cookieParts = cookie.Split(';');
+                                        string cookieName = cookieParts[0].Split('=')[0];
+                                        string domain = cookieParts[1].Split('=')[1].TrimStart();
+                                        client.DefaultRequestHeaders.Add("Cookie", $"{cookieName}=; domain={domain}; expires=Thu, 01 Jan 1970 00:00:00 GMT");
+                                    }
 
-                                Console.WriteLine("Cookie rimossi con successo.");
-                            }
-                            else
-                            {
-                                Console.WriteLine($"Errore nella richiesta: {response.StatusCode}");
+                                    Console.WriteLine("Cookie rimossi con successo.");
+                                }
+                                else
+                                {
+                                    Console.WriteLine($"Errore nella richiesta: {response.StatusCode}");
+                                }
                             }
                         }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"Errore durante la rimozione dei cookie: {ex.Message}");
+                        }
                     }
-                    catch (Exception ex)
+
+                    // Inizializza il WebDriver di Chrome
+                    ChromeOptions options = new ChromeOptions();
+                    options.AddArgument("--start-maximized"); // Massimizza la finestra del browser
+                    IWebDriver driver = new ChromeDriver(options);
+
+                    // Naviga verso la pagina web
+                    driver.Navigate().GoToUrl($"https://www.travel365.it/destinazioni/europa/italia/lombardia/{luogo}/");
+
+               
+
+                    try
                     {
-                        Console.WriteLine($"Errore durante la rimozione dei cookie: {ex.Message}");
+                        IWebElement divElement = driver.FindElement(By.XPath("//div[@id='content']")); // Cambia 'tuo_id_div' con l'id effettivo del tuo div
+                        IWebElement child = divElement.FindElement(By.XPath(".//div[@id='pagecity']")); // Cambia 'tuo_id_div' con l'id effettivo del tuo div
+                        IWebElement child1 = child.FindElement(By.XPath(".//div[@class='stickycontainer']")); // Cambia 'tuo_id_div' con l'id effettivo del tuo div
+                        IWebElement child2 = child1.FindElement(By.XPath(".//div[@class='transport']")); // Cambia 'tuo_id_div' con l'id effettivo del tuo div
+
+                        // Ora puoi catturare uno screenshot del quinto figlio div
+                        Screenshot screenshot = ((ITakesScreenshot)child2).GetScreenshot();
+                        screenshot.SaveAsFile($"div_screenshot{num}.png");
                     }
+
+                    catch (NoSuchElementException ex)
+                    {
+                        Console.WriteLine("Uno dei div non Ã¨ stato trovato: " + ex.Message);
+                    }
+
+                    finally
+                    {
+                        // Chiudi il WebDriver
+                        driver.Quit();
+                        pictureBox2.Image = Image.FromFile($"div_screenshot{num}.png");
+
+                        num++;
+                    }
+
+                    
                 }
-
-                // Inizializza il WebDriver di Chrome
-                ChromeOptions options = new ChromeOptions();
-                options.AddArgument("--start-maximized"); // Massimizza la finestra del browser
-                IWebDriver driver = new ChromeDriver(options);
-
-                // Naviga verso la pagina web
-                driver.Navigate().GoToUrl($"https://www.travel365.it/destinazioni/europa/italia/lombardia/{luogo}/");
-
-                try
-                {
-                    IWebElement divElement = driver.FindElement(By.XPath("//div[@id='content']")); // Cambia 'tuo_id_div' con l'id effettivo del tuo div
-                    IWebElement child = divElement.FindElement(By.XPath(".//div[@id='pagecity']")); // Cambia 'tuo_id_div' con l'id effettivo del tuo div
-                    IWebElement child1 = child.FindElement(By.XPath(".//div[@class='stickycontainer']")); // Cambia 'tuo_id_div' con l'id effettivo del tuo div
-                    IWebElement child2 = child1.FindElement(By.XPath(".//div[@class='transport']")); // Cambia 'tuo_id_div' con l'id effettivo del tuo div
-
-                    // Ora puoi catturare uno screenshot del quinto figlio div
-                    Screenshot screenshot = ((ITakesScreenshot)child2).GetScreenshot();
-                    screenshot.SaveAsFile("div_screenshot.png");
-                }
-
-                catch (NoSuchElementException ex)
-                {
-                    Console.WriteLine("Uno dei div non è stato trovato: " + ex.Message);
-                }
-
-                finally
-                {
-                    // Chiudi il WebDriver
-                    driver.Quit();
-                }
-
-                pictureBox2.Image = Image.FromFile("div_screenshot.png");
-
-
-            }
         }
-    
     }
 }
-
