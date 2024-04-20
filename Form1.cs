@@ -118,106 +118,67 @@ namespace scraping
 
         private async void button2_Click(object sender, EventArgs e)
 
+        {
+            var luogo = textBox1.Text;
+            string url = $"https://www.3bmeteo.com/meteo/{luogo}";
+
+
+
+
+            ScrapingBrowser browser = new ScrapingBrowser();
+            browser.AllowAutoRedirect = true;
+            browser.AllowMetaRedirect = true;
+
+
+
+            // Inizializza il WebDriver di Chrome
+            ChromeOptions options = new ChromeOptions();
+            options.AddArgument("--start-maximized"); // Massimizza la finestra del browser
+            IWebDriver driver = new ChromeDriver(options);
+
+            // Naviga verso la pagina web
+            driver.Navigate().GoToUrl($"https://www.3bmeteo.com/meteo/{luogo}");
+
+
+
+            try
             {
-                var luogo = textBox1.Text;
-                string url = $"https://www.travel365.it/destinazioni/europa/italia/lombardia/{luogo}/";
+                // Trova il bottone tramite il selettore CSS, XPath o altri metodi di localizzazione
+                var button = driver.FindElement(By.CssSelector("div#iubenda-cs-banner"));
+                var button1 = button.FindElement(By.CssSelector("div.iubenda-cs-container"));
+                var button2 = button1.FindElement(By.CssSelector("div.iubenda-cs-content"));
+                var button3 = button2.FindElement(By.CssSelector("div.iubenda-cs-rationale"));
+                var button4 = button3.FindElement(By.CssSelector("div.iubenda-cs-opt-group"));
+                var button5 = button4.FindElement(By.CssSelector("div.iubenda-cs-opt-group-consent"));
+                var button6 = button5.FindElement(By.CssSelector("button.iubenda-cs-accept-btn"));
 
 
+                // Esegui il clic sul bottone
+                button6.Click();
+
+                IWebElement divElement = driver.FindElement(By.XPath("//div[@id='wrapper']")); // Cambia 'tuo_id_div' con l'id effettivo del tuo div
+                IWebElement child = divElement.FindElement(By.XPath(".//section[@id='main']")); // Cambia 'tuo_id_div' con l'id effettivo del tuo div
+                IWebElement child1 = child.FindElement(By.XPath(".//div[@class='box noMarg']")); // Cambia 'tuo_id_div' con l'id effettivo del tuo div
 
 
-                ScrapingBrowser browser = new ScrapingBrowser();
-                browser.AllowAutoRedirect = true;
-                browser.AllowMetaRedirect = true;
+                // Ora puoi catturare uno screenshot del quinto figlio div
+                Screenshot screenshot = ((ITakesScreenshot)child1).GetScreenshot();
+                screenshot.SaveAsFile($"div_screenshot{num}.png");
+            }
 
-                {
-                    WebPage webpage = await browser.NavigateToPageAsync(new Uri(url));
+            catch (NoSuchElementException ex)
+            {
+                Console.WriteLine("Uno dei div non è stato trovato: " + ex.Message);
+            }
 
-                    //var tot = webpage.Html.OwnerDocument.DocumentNode.CssSelect("div.dialog-off-canvas-main-canvas");
-                    //var main = tot.CssSelect("div.main-container");
-                    //var row = main.CssSelect("div.row");
-                    //var col = row.CssSelect("section.col-sm-12");
-                    //var region = col.CssSelect("div.region");
-                    //var nomar = region.CssSelect("div#locadett_dettagli");
-                    //var conteiner = nomar.CssSelect("div.container");
+            finally
+            {
+                // Chiudi il WebDriver
+                driver.Quit();
+                pictureBox2.Image = Image.FromFile($"div_screenshot{num}.png");
 
-                    //var row1 = conteiner.CssSelect("div.row");
-
-                    
-
-
-                    {
-                        try
-                        {
-                            // Crea un'istanza di HttpClient
-                            using (HttpClient client = new HttpClient())
-                            {
-                                // Invia una richiesta GET al sito specificato
-                                HttpResponseMessage response = await client.GetAsync(url);
-
-                                // Assicurati che la richiesta sia andata a buon fine
-                                if (response.IsSuccessStatusCode)
-                                {
-                                    // Rimuovi tutti i cookie dalla risposta
-                                    foreach (var cookie in response.Headers.GetValues("Set-Cookie"))
-                                    {
-                                        string[] cookieParts = cookie.Split(';');
-                                        string cookieName = cookieParts[0].Split('=')[0];
-                                        string domain = cookieParts[1].Split('=')[1].TrimStart();
-                                        client.DefaultRequestHeaders.Add("Cookie", $"{cookieName}=; domain={domain}; expires=Thu, 01 Jan 1970 00:00:00 GMT");
-                                    }
-
-                                    Console.WriteLine("Cookie rimossi con successo.");
-                                }
-                                else
-                                {
-                                    Console.WriteLine($"Errore nella richiesta: {response.StatusCode}");
-                                }
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine($"Errore durante la rimozione dei cookie: {ex.Message}");
-                        }
-                    }
-
-                    // Inizializza il WebDriver di Chrome
-                    ChromeOptions options = new ChromeOptions();
-                    options.AddArgument("--start-maximized"); // Massimizza la finestra del browser
-                    IWebDriver driver = new ChromeDriver(options);
-
-                    // Naviga verso la pagina web
-                    driver.Navigate().GoToUrl($"https://www.travel365.it/destinazioni/europa/italia/lombardia/{luogo}/");
-
-               
-
-                    try
-                    {
-                        IWebElement divElement = driver.FindElement(By.XPath("//div[@id='content']")); // Cambia 'tuo_id_div' con l'id effettivo del tuo div
-                        IWebElement child = divElement.FindElement(By.XPath(".//div[@id='pagecity']")); // Cambia 'tuo_id_div' con l'id effettivo del tuo div
-                        IWebElement child1 = child.FindElement(By.XPath(".//div[@class='stickycontainer']")); // Cambia 'tuo_id_div' con l'id effettivo del tuo div
-                        IWebElement child2 = child1.FindElement(By.XPath(".//div[@class='transport']")); // Cambia 'tuo_id_div' con l'id effettivo del tuo div
-
-                        // Ora puoi catturare uno screenshot del quinto figlio div
-                        Screenshot screenshot = ((ITakesScreenshot)child2).GetScreenshot();
-                        screenshot.SaveAsFile($"div_screenshot{num}.png");
-                    }
-
-                    catch (NoSuchElementException ex)
-                    {
-                        Console.WriteLine("Uno dei div non è stato trovato: " + ex.Message);
-                    }
-
-                    finally
-                    {
-                        // Chiudi il WebDriver
-                        driver.Quit();
-                        pictureBox2.Image = Image.FromFile($"div_screenshot{num}.png");
-
-                        num++;
-                    }
-
-                    
-                }
+                num++;
+            }
         }
     }
 }
