@@ -179,6 +179,73 @@ namespace scraping
 
                 num++;
             }
+
+        }
+        private async void button3_Click(object sender, EventArgs e)
+        {
+            var luogo = textBox1.Text;
+
+            string url = $"https://www.google.com/search?q={luogo}+piste+sci&tbm=isch&source=lnms";
+            //textBox1.Text = url;
+
+            ScrapingBrowser browser = new ScrapingBrowser();
+            browser.AllowAutoRedirect = true;
+            browser.AllowMetaRedirect = true;
+
+            WebPage webpage = await browser.NavigateToPageAsync(new Uri(url));
+
+            //rg_i
+
+            //var prova = webpage.Html.OwnerDocument.DocumentNode.CssSelect("div.BnJWBc").ToList();
+            var html = webpage.Html.OwnerDocument.DocumentNode.CssSelect("html").First().InnerHtml;
+
+            System.IO.File.WriteAllText(@"test.html", html);
+
+            var prova = webpage.Html.OwnerDocument.DocumentNode.CssSelect("img.DS1iW").ToList();
+            var urlImg = webpage.Html.OwnerDocument.DocumentNode.CssSelect("img.DS1iW").First().GetAttributeValue("src");
+
+
+
+            var request = WebRequest.Create(urlImg);
+
+            using (var response = request.GetResponse())
+            using (var stream = response.GetResponseStream())
+            {
+                pictureBox3.Image = Bitmap.FromStream(stream);
+            }
+            try
+            {
+
+                using (WebClient webClient = new WebClient())
+                using (MemoryStream originalStream = new MemoryStream(webClient.DownloadData(urlImg)))
+                {
+
+                    using (Image originalImage = Image.FromStream(originalStream))
+                    {
+
+                        int newWidth = 400;
+                        int newHeight = 400;
+
+                        // Resize the image
+                        using (Image resizedImage = new Bitmap(newWidth, newHeight))
+                        using (Graphics graphics = Graphics.FromImage(resizedImage))
+                        {
+                            graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                            graphics.DrawImage(originalImage, 0, 0, newWidth, newHeight);
+
+
+                            Bitmap bitmap = new Bitmap(resizedImage);
+
+
+                            pictureBox3.Image = bitmap;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error: " + ex.Message);
+            }
         }
     }
 }
