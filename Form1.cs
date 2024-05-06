@@ -61,25 +61,37 @@ namespace scraping
             string url = $"https://www.dovesciare.it/webcam/{luogo}";
 
            
-
+            var img1 = "";
 
             ScrapingBrowser browser = new ScrapingBrowser();
             browser.AllowAutoRedirect = true;
             browser.AllowMetaRedirect = true;
 
-            WebPage webpage = await browser.NavigateToPageAsync(new Uri(url));
+            try
+            {
+                WebPage webpage = await browser.NavigateToPageAsync(new Uri(url));
 
-            var webcam = webpage.Html.OwnerDocument.DocumentNode.CssSelect("div.row").ToList()[1];
-            var urlImg = webpage.Html.OwnerDocument.DocumentNode.CssSelect("section.col-sm-12");
-            var region = urlImg.CssSelect("div.region");
-            var webc = region.CssSelect("article.webcam");
-            var jumbotron = webc.CssSelect("div.jumbotron");
-            var container = jumbotron.CssSelect("div.container");
-            var row = container.CssSelect("div.row");
-            var blocco = row.CssSelect("div#webcam_intro_left").ToList();
-            var img = blocco.CssSelect("img.img-responsive").First().GetAttributeValue("src");
-            var img1 = $"https://www.dovesciare.it{img}";
-            var request = WebRequest.Create(img1);
+                var webcam = webpage.Html.OwnerDocument.DocumentNode.CssSelect("div.row").ToList()[1];
+                var urlImg = webpage.Html.OwnerDocument.DocumentNode.CssSelect("section.col-sm-12");
+                var region = urlImg.CssSelect("div.region");
+                var webc = region.CssSelect("article.webcam");
+                var jumbotron = webc.CssSelect("div.jumbotron");
+                var container = jumbotron.CssSelect("div.container");
+                var row = container.CssSelect("div.row");
+                var blocco = row.CssSelect("div#webcam_intro_left").ToList();
+                var img = blocco.CssSelect("img.img-responsive").First().GetAttributeValue("src");
+
+                 img1 = $"https://www.dovesciare.it{img}";
+                var request = WebRequest.Create(img1);
+
+               
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Errore durante lo scraping: {ex.Message}");
+               
+            }
+
 
             try
             {
