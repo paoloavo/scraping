@@ -57,8 +57,8 @@ namespace scraping
 
         private async void button1_Click(object sender, EventArgs e)
         {
-            var luogo = textBox1.Text;
-            string url = $"https://www.dovesciare.it/webcam/{luogo}";
+            var luogo = comboBox1.Text;
+              string url = $"https://www.dovesciare.it/webcam/{luogo}";
 
            
             var img1 = "";
@@ -135,7 +135,7 @@ namespace scraping
         private async void button3_Click_1(object sender, EventArgs e)
         {
 
-            var luogo = textBox1.Text;
+            var luogo = comboBox1.Text;
 
             string url = $"https://www.google.com/search?q={luogo}+piste+sci&tbm=isch&source=lnms";
             //textBox1.Text = url;
@@ -202,7 +202,7 @@ namespace scraping
 
         private void button2_Click_1(object sender, EventArgs e)
         {
-            var luogo = textBox1.Text;
+            var luogo = comboBox1.Text;
             string url = $"https://www.3bmeteo.com/meteo/{luogo}";
 
 
